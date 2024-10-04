@@ -17,7 +17,6 @@ class Task(models.Model):
 
     PENDING = 'Pending'
     COMPLETED = 'Completed'
-    
     STATUS_CHOICES = [
         (PENDING, 'Pending'),
         (COMPLETED, 'Completed')
@@ -36,7 +35,14 @@ class Task(models.Model):
             self.completed_at = timezone.now()
         if self.status == self.PENDING:
             self.completed_at = None
+        if self.due_date < timezone.now().date():
+            raise ValueError("Due date cannot be in the past.")
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+      if self.due_date < timezone.now().date():
+        raise ValidationError('Due date must be in the future.')
+
