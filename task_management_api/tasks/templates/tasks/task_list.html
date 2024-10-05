@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+</head>
+<body>
+    <h2>Task List</h2>
+    <a href="{% url 'task-create' %}">Create New Task</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.due_date }}</td>
+                <td>{{ task.get_priority_display }}</td>
+                <td>{{ task.get_status_display }}</td>
+                <td>
+                    <a href="{% url 'task-detail' task.id %}">Edit</a> |
+                    <a href="{% url 'task-delete' task.id %}">Delete</a>
+                    {% if task.status == 'pending' %}
+                    | <a href="{% url 'mark-task-complete' task.id %}">Mark as Complete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No tasks available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

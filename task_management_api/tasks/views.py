@@ -11,9 +11,12 @@ from .serializers import UserSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
-
-
-
+from rest_framework import filters
+from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
+from django.views.generic.edit import UpdateView
+from django.views.generic.edit import DeleteView
 
 # Create your views here.
 class TaskListCreateView(generics.ListCreateAPIView):
@@ -48,6 +51,30 @@ class TaskCompleteView(generics.UpdateAPIView):
         task.status = Task.COMPLETED if task.status == Task.PENDING else Task.PENDING
         task.save()
         return Response(TaskSerializer(task).data)
+
+class TaskListView(ListView):
+    model = Task
+    template_name = 'tasks/task_list.html'  
+    context_object_name = 'tasks'
+
+class TaskCreateView(CreateView):
+    model = Task
+    template_name = 'tasks/task_form.html'  # Reuse the form template
+    fields = ['title', 'description', 'due_date', 'priority', 'status']
+    success_url = reverse_lazy('task-list') 
+
+class TaskUpdateView(UpdateView):
+    model = Task
+    template_name = 'tasks/task_form.html'  # Reuse the same form template for update
+    fields = ['title', 'description', 'due_date', 'priority', 'status']
+    success_url = reverse_lazy('task-list')
+
+class TaskDeleteView(DeleteView):
+    model = Task
+    template_name = 'tasks/task_confirm_delete.html'  # Confirmation page for deletion
+    success_url = reverse_lazy('task-list')
+
+
 
 # User Registration View
 class UserCreateView(generics.CreateAPIView):

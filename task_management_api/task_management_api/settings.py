@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'tasks',
     'django_filters',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -151,4 +152,13 @@ from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=365),  # 1 year
     'REFRESH_TOKEN_LIFETIME': timedelta(days=365),  # 1 year
+}
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user_create': 'tasks.serializers.CustomUserCreateSerializer',
+        'user': 'tasks.serializers.CustomUserSerializer',
+    },
 }
