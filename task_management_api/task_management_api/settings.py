@@ -134,13 +134,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+    
 }
 
 STATIC_URL = '/static/'
@@ -162,3 +161,6 @@ DJOSER = {
         'user': 'tasks.serializers.CustomUserSerializer',
     },
 }
+
+LOGIN_REDIRECT_URL = '/api/'  
+LOGOUT_REDIRECT_URL = '/api/'

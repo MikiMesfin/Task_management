@@ -22,6 +22,7 @@ class Task(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     completed_at = models.DateTimeField(null=True, blank=True)  # Timestamp for completion
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Each task is tied to a user
+    
 
     def clean(self):
         if self.due_date < timezone.now():
@@ -35,4 +36,4 @@ class Task(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.title
+        return f"Task: {self.title}, Status: {self.status}, Due: {self.due_date}"

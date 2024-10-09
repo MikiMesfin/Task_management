@@ -24,7 +24,6 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api-auth/', include('rest_framework.urls')),  # For login/logout
-    path('api/', include('tasks.urls')),  # Include the tasks app URLs
     path('users/', include('djoser.urls')),  # User management with Djoser
     path('users/', include('djoser.urls.authtoken')),  # If using token authentication
 ]

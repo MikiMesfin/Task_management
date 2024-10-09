@@ -1,86 +1,61 @@
-from django.shortcuts import render
+from rest_framework.views import APIView
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-from .models import Task
-from .serializers import TaskSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter
-from .serializers import UserSerializer
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
-from rest_framework import filters
-from django.views.generic import ListView
-from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
-from django.views.generic.edit import UpdateView
-from django.views.generic.edit import DeleteView
+from .models import Task
+from .serializers import TaskSerializer, RegisterSerializer, UserSerializer
+from rest_framework.decorators import api_view, permission_classes
 
-# Create your views here.
-class TaskListCreateView(generics.ListCreateAPIView):
-    serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['status', 'priority', 'due_date']
-    ordering_fields = ['due_date', 'priority']
-
-    def get_queryset(self):
-        return Task.objects.filter(user=self.request.user)
-    
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
+# List View for Tasks (Retrieve all tasks for the authenticated user)
+class TaskListView(generics.ListAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # Return only the tasks that belong to the logged-in user
         return Task.objects.filter(user=self.request.user)
 
-class TaskCompleteView(generics.UpdateAPIView):
+
+# Create View for Tasks
+class TaskCreateView(generics.CreateAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+
+# Update View for Tasks
+class TaskUpdateView(generics.UpdateAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # Users can only update their own tasks
         return Task.objects.filter(user=self.request.user)
 
-    def update(self, request, *args, **kwargs):
-        task = self.get_object()
-        task.status = Task.COMPLETED if task.status == Task.PENDING else Task.PENDING
-        task.save()
-        return Response(TaskSerializer(task).data)
 
-class TaskListView(ListView):
-    model = Task
-    template_name = 'tasks/task_list.html'  
-    context_object_name = 'tasks'
+# Delete View for Tasks
+class TaskDeleteView(generics.DestroyAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
 
-class TaskCreateView(CreateView):
-    model = Task
-    template_name = 'tasks/task_form.html'  # Reuse the form template
-    fields = ['title', 'description', 'due_date', 'priority', 'status']
-    success_url = reverse_lazy('task-list') 
-
-class TaskUpdateView(UpdateView):
-    model = Task
-    template_name = 'tasks/task_form.html'  # Reuse the same form template for update
-    fields = ['title', 'description', 'due_date', 'priority', 'status']
-    success_url = reverse_lazy('task-list')
-
-class TaskDeleteView(DeleteView):
-    model = Task
-    template_name = 'tasks/task_confirm_delete.html'  # Confirmation page for deletion
-    success_url = reverse_lazy('task-list')
-
+    def get_queryset(self):
+        # Users can only delete their own tasks
+        return Task.objects.filter(user=self.request.user)
 
 
 # User Registration View
-class UserCreateView(generics.CreateAPIView):
-    serializer_class = UserSerializer
+class RegisterView(APIView):
+    permission_classes = [AllowAny]  # Allow any user (authenticated or not) to access this view
 
-    
+    def post(self, request, *args, **kwargs):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()  # Save the new user
+            return Response({"message": "User created successfully."}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['POST'])
 def mark_task_complete(request, pk):
     task = Task.objects.filter(pk=pk, user=request.user).first()
@@ -90,6 +65,7 @@ def mark_task_complete(request, pk):
         return Response({'status': 'Task marked as complete'}, status=status.HTTP_200_OK)
     return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['POST'])
 def mark_task_incomplete(request, pk):
     task = Task.objects.filter(pk=pk, user=request.user).first()
@@ -98,21 +74,3 @@ def mark_task_incomplete(request, pk):
         task.save()
         return Response({'status': 'Task reverted to incomplete'}, status=status.HTTP_200_OK)
     return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['POST'])
-@permission_classes([AllowAny])  # Allow public access to this endpoint
-def register(request):
-    username = request.data.get('username')
-    email = request.data.get('email')
-    password = request.data.get('password')
-
-    if not username or not email or not password:
-        return Response({'error': 'All fields are required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    user = User.objects.create_user(username=username, email=email, password=password)
-    user.save()
-
-    return Response({'success': 'User registered successfully.'}, status=status.HTTP_201_CREATED)
