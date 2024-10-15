@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Task History{% endblock %}
+
+{% block content %}
+<h1>Completed Tasks</h1>
+
+<ul>
+    {% for task in tasks %}
+    <li>{{ task.title }} - Completed at: {{ task.completed_at }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

@@ -16,16 +16,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from tasks.views import HomePageView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('tasks.urls')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api-auth/', include('rest_framework.urls')),  # For login/logout
-    path('users/', include('djoser.urls')),  # User management with Djoser
+    path('admin/', admin.site.urls, name='admin'),  # Admin panel
+     path('api/', include('tasks.urls')),           # API Page View
+    path('', HomePageView.as_view(), name='home'),  # Home page view
+
+    # API endpoints
+    path('api/', include(('tasks.urls', 'tasks'), namespace='tasks')),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # JWT token obtain
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # JWT token refresh
+
+    # User management with Djoser
+    path('users/', include('djoser.urls')),  
     path('users/', include('djoser.urls.authtoken')),  # If using token authentication
+
+    # DRF session-based authentication routes (THIS IS CRITICAL)
+    path('api-auth/', include('rest_framework.urls')),
+
+    # Optional: Uncomment if you plan to use session-based authentication
+    # path('api-auth/', include('rest_framework.urls')),  # For login/logout
 ]
+
 
 

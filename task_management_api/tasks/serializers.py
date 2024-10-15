@@ -1,13 +1,27 @@
 from rest_framework import serializers
 from .models import Task
+from .models import Category
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
 class TaskSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    shared_with = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)
+    priority = serializers.ChoiceField(choices=Task.PRIORITY_CHOICES, required=True)
+    status = serializers.ChoiceField(choices=Task.STATUS_CHOICES, required=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source='category', write_only=True, allow_null=True, required=False
+    )
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'due_date', 'priority', 'status', 'completed_at', 'user']
+        fields = ['id', 'title', 'description', 'due_date', 'priority', 'status', 'completed_at', 'category', 'category_id', 'shared_with']
         read_only_fields = ['id', 'completed_at', 'user']  # Ensure user and completion timestamp are read-only
 
     def validate_due_date(self, value):
@@ -71,3 +85,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email']
         )
         return user
+
+
+
+
+
+       

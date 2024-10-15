@@ -1,0 +1,30 @@
+{% load static %}  <!-- Add this line at the top -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Task Management App{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">  <!-- This line will now work -->
+</head>
+<body>
+    <header>
+        <h1>Task Management App</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'task-list' %}">Tasks</a></li>
+                <li><a href="{% url 'category-list' %}">Categories</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+                <li><a href="{% url 'login' %}">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Task Management App</p>
+    </footer>
+</body>
+</html>
