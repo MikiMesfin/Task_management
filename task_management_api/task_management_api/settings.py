@@ -157,8 +157,8 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SERIALIZERS': {
-        'user_create': 'tasks.serializers.CustomUserCreateSerializer',
-        'user': 'tasks.serializers.CustomUserSerializer',
+        'user_create': 'tasks.serializers.RegisterSerializer',
+        'user': 'tasks.serializers.RegisterSerializer',
     },
 }
 

@@ -1,15 +1,15 @@
 from rest_framework import serializers
-from .models import Task
-from .models import Category
-from django.contrib.auth.models import User
+from .models import Task, Category
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
+User = get_user_model()  # Consistent user model handling
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name']
+
 
 class TaskSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
@@ -19,6 +19,7 @@ class TaskSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True, allow_null=True, required=False
     )
+
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'due_date', 'priority', 'status', 'completed_at', 'category', 'category_id', 'shared_with']
@@ -34,11 +35,9 @@ class TaskSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if validated_data.get('status') == 'completed' and instance.completed_at is None:
-            instance.completed_at = timezone.now()
-        elif validated_data.get('status') == 'pending':
-            instance.completed_at = None  # Reset timestamp if reverted to pending
+        # Remove status-related logic here if it's already handled in the model's save() method
         return super().update(instance, validated_data)
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,24 +50,14 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-User = get_user_model()
-
-class CustomUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'password')
-
-
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-    email = serializers.EmailField(required=True)
-
     class Meta:
         model = User
-        fields = ['username', 'password', 'email']
+        fields = ['email', 'username', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):
-        # Check if all fields are provided
+        # Ensure required fields are provided
         if not data.get('username'):
             raise serializers.ValidationError({"username": "This field is required."})
         if not data.get('password'):
@@ -78,16 +67,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        # Create user
+        # Create user with a hashed password
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=validated_data['password'],
+            password=validated_data['password'],  # create_user hashes the password
             email=validated_data['email']
         )
         return user
-
-
-
-
-
-       

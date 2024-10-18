@@ -27,6 +27,7 @@ urlpatterns = [
     path('tasks/complete/<int:pk>/', mark_task_complete, name='mark-complete'),
     path('tasks/incomplete/<int:pk>/', mark_task_incomplete, name='mark-incomplete'),
     path('tasks/', TaskListView.as_view(), name='task-list'),
+    path('api/tasks/', TaskCreateView.as_view(), name='task-create'),
     path('tasks/create/', TaskCreateTemplateView.as_view(), name='task-create'),
     path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
     path('tasks/<int:pk>/update/', TaskUpdateTemplateView.as_view(), name='task-update'),

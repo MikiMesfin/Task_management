@@ -31,6 +31,14 @@ class TaskCreateView(generics.CreateAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request  # Add the request to the context
+        return context
+
 
 # Update View for Tasks
 class TaskUpdateView(generics.UpdateAPIView):
@@ -67,11 +75,12 @@ class TaskCreateTemplateView(APIView):
     template_name = 'tasks/task_form.html'
 
     def post(self, request, *args, **kwargs):
-        serializer = TaskSerializer(data=request.data)
+        serializer = TaskSerializer(data=request.data, context={'request': request})  # Pass request in context
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)  # Ensure user is saved correctly
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TaskUpdateTemplateView(TemplateView):
     template_name = 'tasks/task_form.html'

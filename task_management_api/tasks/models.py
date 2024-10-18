@@ -1,8 +1,8 @@
 from django.db import models
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-
 
 
 class Category(models.Model):
@@ -12,8 +12,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 def validate_due_date(value):
-    if value < timezone.now().date():
+    if value < timezone.now():
         raise ValidationError('Due date must be in the future.')
 
 
@@ -30,11 +31,10 @@ class Task(models.Model):
     ]
 
     RECURRING_CHOICES = [
-       ('none', 'None'),
-       ('daily', 'Daily'),
-       ('weekly', 'Weekly'),
+        ('none', 'None'),
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
     ]
-
 
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -47,9 +47,8 @@ class Task(models.Model):
     recurring = models.CharField(max_length=10, choices=RECURRING_CHOICES, default='none')
     shared_with = models.ManyToManyField(User, related_name='shared_tasks', blank=True)
 
-
-
     def clean(self):
+        # Compare due_date with timezone.now() to avoid datetime vs date comparison
         if self.due_date < timezone.now():
             raise ValidationError("Due date must be in the future.")
 
@@ -63,18 +62,9 @@ class Task(models.Model):
     def __str__(self):
         return f"Task: {self.title}, Status: {self.status}, Due: {self.due_date}"
 
-
     def regenerate(self):
         if self.recurring == 'daily':
             return timezone.now() + timezone.timedelta(days=1)
         elif self.recurring == 'weekly':
             return timezone.now() + timezone.timedelta(weeks=1)
         return None
-
-    def __str__(self):
-        return self.title
-
-
-
-
-
