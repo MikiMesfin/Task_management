@@ -1,9 +1,37 @@
-from rest_framework import serializers
+from rest_framework import serializers, generics
 from .models import Task, Category
+from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
 User = get_user_model()  # Consistent user model handling
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'username', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def validate(self, data):
+        # Ensure required fields are provided
+        if not data.get('username'):
+            raise serializers.ValidationError({"username": "This field is required."})
+        if not data.get('password'):
+            raise serializers.ValidationError({"password": "This field is required."})
+        if not data.get('email'):
+            raise serializers.ValidationError({"email": "This field is required."})
+        return data
+
+    def create(self, validated_data):
+        # Create user with a hashed password
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],  # create_user hashes the password
+            email=validated_data['email']
+        )
+        return user
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,27 +78,4 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class RegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['email', 'username', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
 
-    def validate(self, data):
-        # Ensure required fields are provided
-        if not data.get('username'):
-            raise serializers.ValidationError({"username": "This field is required."})
-        if not data.get('password'):
-            raise serializers.ValidationError({"password": "This field is required."})
-        if not data.get('email'):
-            raise serializers.ValidationError({"email": "This field is required."})
-        return data
-
-    def create(self, validated_data):
-        # Create user with a hashed password
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            password=validated_data['password'],  # create_user hashes the password
-            email=validated_data['email']
-        )
-        return user

@@ -16,16 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from tasks.views import HomePageView
+from tasks.views import HomePageView, UserDetailView 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),  # Admin panel
-     path('api/', include('tasks.urls')),           # API Page View
+    path('api/', include('tasks.urls')),           # API Page View
     path('', HomePageView.as_view(), name='home'),  # Home page view
 
     # API endpoints
     path('api/', include(('tasks.urls', 'tasks'), namespace='tasks')),
+    path('api/users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # JWT token obtain
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # JWT token refresh
 

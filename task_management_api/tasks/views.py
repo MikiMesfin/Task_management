@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework import status
 from django.contrib.auth.models import User
+from .models import User
 from .models import Task
 from .models import Category
 from .serializers import TaskSerializer, RegisterSerializer, UserSerializer
@@ -198,6 +199,10 @@ class TaskHistoryView(generics.ListAPIView):
 
     def get_queryset(self):
         return Task.objects.filter(user=self.request.user, status='completed')
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()  
+    serializer_class = UserSerializer  
 
 # User Registration View
 class RegisterView(APIView):
