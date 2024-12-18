@@ -23,7 +23,7 @@ A robust Django REST API for managing tasks and categories with user authenticat
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/task-management-api.git
+   git clone https://github.com/MikiMesfin/task-management-api.git
    cd task-management-api
    ```
 
