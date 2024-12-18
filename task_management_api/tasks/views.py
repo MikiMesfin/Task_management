@@ -6,13 +6,18 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.http import JsonResponse
 from rest_framework import status
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
+from django.shortcuts import redirect
 from .models import User
 from .models import Task
 from .models import Category
 from .serializers import TaskSerializer, RegisterSerializer, UserSerializer
 from .serializers import CategorySerializer
 from rest_framework.decorators import api_view, permission_classes
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import ValidationError
+from django.http import Http404
 
 # List View for Tasks (Retrieve all tasks for the authenticated user)
 class TaskListView(generics.ListAPIView):
@@ -24,7 +29,9 @@ class TaskListView(generics.ListAPIView):
     ordering = ['due_date']  # Default ordering by due_date
 
     def get_queryset(self):
-        return Task.objects.filter(user=self.request.user)
+        return Task.objects.select_related('user', 'category')\
+                          .prefetch_related('shared_with')\
+                          .filter(user=self.request.user)
 
 
 # Create View for Tasks
@@ -201,8 +208,11 @@ class TaskHistoryView(generics.ListAPIView):
         return Task.objects.filter(user=self.request.user, status='completed')
 
 class UserDetailView(generics.RetrieveAPIView):
-    queryset = User.objects.all()  
-    serializer_class = UserSerializer  
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return User.objects.all()
 
 # User Registration View
 class RegisterView(APIView):
@@ -234,4 +244,20 @@ def mark_task_incomplete(request, pk):
         task.save()
         return Response({'status': 'Task reverted to incomplete'}, status=status.HTTP_200_OK)
     return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class TaskDraftListView(generics.ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(
+            user=self.request.user,
+            status='draft'
+        )
+
+def get_object(self, pk):
+    try:
+        return Task.objects.get(pk=pk, user=self.request.user)
+    except Task.DoesNotExist:
+        raise Http404("Task not found")
 

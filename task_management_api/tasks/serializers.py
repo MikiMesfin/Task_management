@@ -1,10 +1,9 @@
 from rest_framework import serializers, generics
 from .models import Task, Category
-from django.contrib.auth.models import User
-from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
-User = get_user_model()  # Consistent user model handling
+User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -70,12 +69,7 @@ class TaskSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
+        fields = ('id', 'username', 'email')
 
 
 

@@ -4,38 +4,50 @@
 {% block content %}
 <h1>Task List</h1>
 
-<table>
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Priority</th>
-            <th>Due Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ task.title }}</td>
-            <td>{{ task.description }}</td>
-            <td>{{ task.priority }}</td>
-            <td>{{ task.due_date }}</td>
-            <td>{{ task.status }}</td>
-            <td>
-                <a href="{% url 'task-update' task.id %}">Edit</a> |
-                <a href="{% url 'task-delete' task.id %}">Delete</a> |
-                {% if task.status == 'completed' %}
-                    <a href="{% url 'mark-incomplete' task.id %}">Mark Incomplete</a>
-                {% else %}
-                    <a href="{% url 'mark-complete' task.id %}">Mark Complete</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if tasks %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.priority }}</td>
+                <td>{{ task.due_date }}</td>
+                <td>{{ task.status }}</td>
+                <td>
+                    <a href="{% url 'task-update' task.id %}">Edit</a> |
+                    <a href="{% url 'task-delete' task.id %}">Delete</a> |
+                    {% if task.status == 'completed' %}
+                        <a href="{% url 'mark-incomplete' task.id %}">Mark Incomplete</a>
+                    {% else %}
+                        <a href="{% url 'mark-complete' task.id %}">Mark Complete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No tasks found.</p>
+{% endif %}
 
 <a href="{% url 'task-create' %}">Create New Task</a>
 {% endblock %}

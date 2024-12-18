@@ -22,36 +22,33 @@ from .views import (
 
 
 urlpatterns = [
-    # Task-related views
+    # API Home
     path('', APIHomeView.as_view(), name='api-home'),
+    
+    # Task Management
+    path('tasks/', TaskListView.as_view(), name='task-list'),
+    path('tasks/create/', TaskCreateView.as_view(), name='task-create'),
+    path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
+    path('tasks/<int:pk>/update/', TaskUpdateView.as_view(), name='task-update'),
+    path('tasks/<int:pk>/delete/', TaskDeleteView.as_view(), name='task-delete'), 
     path('tasks/complete/<int:pk>/', mark_task_complete, name='mark-complete'),
     path('tasks/incomplete/<int:pk>/', mark_task_incomplete, name='mark-incomplete'),
-    path('tasks/', TaskListView.as_view(), name='task-list'),
-    path('api/tasks/', TaskCreateView.as_view(), name='task-create'),
-    path('tasks/create/', TaskCreateTemplateView.as_view(), name='task-create'),
-    path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
-    path('tasks/<int:pk>/update/', TaskUpdateTemplateView.as_view(), name='task-update'),
-    path('tasks/<int:pk>/delete/', TaskDeleteTemplateView.as_view(), name='task-delete'),
+    path('tasks/history/', TaskHistoryView.as_view(), name='task-history'),
+    # path('tasks/drafts/', TaskDraftListView.as_view(), name='task-drafts'),
+    
+    # Category Management
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
-    path('categories/create/', CategoryCreateTemplateView.as_view(), name='category-create'),
     path('categories/<int:pk>/update/', CategoryUpdateTemplateView.as_view(), name='category-update'),
     path('categories/<int:pk>/delete/', CategoryDeleteTemplateView.as_view(), name='category-delete'),
-    path('tasks/history/', TaskHistoryView.as_view(), name='task-history'),
-    path('create/', TaskCreateView.as_view(), name='task-create'),
-    path('tasks/update/<int:pk>/', TaskUpdateView.as_view(), name='task-update'),
-
-
-    # Authentication views
-    path('logout/', LogoutView.as_view(template_name='logout.html'), name='logout'),
-    path('login/', obtain_auth_token, name='api_token_auth'),  # Token-based login (optional)
-    path('api-auth/', include('rest_framework.urls')),  # For session login/logout
-
-    # JWT authentication
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Get access/refresh token
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh token
-
-    # User registration views
-    path('register/', RegisterView.as_view(), name='register'),  # Registration page
-    path('api/register/', RegisterView.as_view(), name='api-register'),  # API registration endpoint
+    
+    # Authentication
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', obtain_auth_token, name='api_token_auth'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Include DRF authentication views
+    path('api-auth/', include('rest_framework.urls')),
 ]

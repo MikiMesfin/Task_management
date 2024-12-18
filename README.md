@@ -1,24 +1,30 @@
-
 # Task Management API
 
-Task Management API is a backend solution built with Django and Django REST Framework (DRF). This API enables users to create, manage, and track their tasks with features like user authentication, task categorization, filtering, and completion tracking. It serves as a robust foundation for any application that requires task management functionality.
+A robust Django REST API for managing tasks and categories with user authentication, task sharing, and recurring tasks functionality.
+
+[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
+[![Django Version](https://img.shields.io/badge/django-5.1-green.svg)](https://djangoproject.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
-- **User Authentication (JWT)**: Secure user registration and authentication.
-- **Task Management**: Create, update, delete, and view tasks.
-- **Task Categorization**: Organize tasks into categories for better management.
-- **Task Completion Tracking**: Mark tasks as complete or incomplete.
-- **Filtering and Sorting**: Filter tasks by category, due date, and priority.
-- **Task Sharing**: Share tasks with other users for collaborative management.
-- **Task History**: View completed tasks and their history.
+
+- 🔐 User Authentication and Authorization
+- 📋 Task Creation and Management
+- 🔄 Recurring Tasks
+- 📁 Task Categories
+- 🤝 Task Sharing
+- 📅 Due Date Tracking
+- 📧 Email Notifications
+- 🔍 Advanced Filtering
+- 📱 REST API
+- 📚 API Documentation (Swagger/ReDoc)
 
 ## Installation
-Follow these steps to set up the Task Management API locally:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/MikiMesfin/task_management_api.git
-   cd task_management_api
+   git clone https://github.com/yourusername/task-management-api.git
+   cd task-management-api
    ```
 
 2. Create and activate a virtual environment:

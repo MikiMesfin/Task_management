@@ -18,27 +18,36 @@ from django.contrib import admin
 from django.urls import path, include
 from tasks.views import HomePageView, UserDetailView 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Task Management API",
+        default_version='v1',
+        description="API for managing tasks and categories",
+    ),
+    public=True,
+)
 
 urlpatterns = [
-    path('admin/', admin.site.urls, name='admin'),  # Admin panel
-    path('api/', include('tasks.urls')),           # API Page View
-    path('', HomePageView.as_view(), name='home'),  # Home page view
-
+    path('admin/', admin.site.urls),
+    path('', HomePageView.as_view(), name='home'),
+    
     # API endpoints
-    path('api/', include(('tasks.urls', 'tasks'), namespace='tasks')),
+    path('api/', include('tasks.urls')),
     path('api/users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # JWT token obtain
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # JWT token refresh
-
-    # User management with Djoser
-    path('users/', include('djoser.urls')),  
-    path('users/', include('djoser.urls.authtoken')),  # If using token authentication
-
-    # DRF session-based authentication routes (THIS IS CRITICAL)
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Authentication
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
     path('api-auth/', include('rest_framework.urls')),
-
-    # Optional: Uncomment if you plan to use session-based authentication
-    # path('api-auth/', include('rest_framework.urls')),  # For login/logout
+    
+    # API Documentation
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0)),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0)),
 ]
 
 

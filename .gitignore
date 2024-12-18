@@ -1,0 +1,28 @@
+# Environment
+.env
+.venv/
+env/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Database
+db.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# Static & Media
+staticfiles/
+media/
+
+# Logs
+*.log
+
+# Coverage
+.coverage
+htmlcov/ 
